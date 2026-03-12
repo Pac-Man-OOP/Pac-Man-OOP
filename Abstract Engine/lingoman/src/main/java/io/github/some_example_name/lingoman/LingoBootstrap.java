@@ -18,8 +18,19 @@ public final class LingoBootstrap implements EngineBootstrap {
             throw new IllegalArgumentException("context cannot be null");
         }
 
+        context.getSaveManager().register(LingoSession.get());
+        context.getSaveManager().load(LingoSession.SAVE_FILE);
         configureInput(context.getInputManager());
         configureScenes(context.getSceneManager());
+    }
+
+    @Override
+    public void dispose(EngineContext context) {
+        if (context == null) {
+            return;
+        }
+        context.getSaveManager().save(LingoSession.SAVE_FILE);
+        context.getSaveManager().unregister(LingoSession.get().getSaveId());
     }
 
     private void configureInput(InputManager input) {

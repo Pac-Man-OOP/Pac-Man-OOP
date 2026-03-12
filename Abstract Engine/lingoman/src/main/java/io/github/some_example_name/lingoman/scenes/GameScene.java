@@ -111,7 +111,9 @@ public class GameScene implements Scene {
 
         GameState state = LingoSession.get().getGameState();
         if (state.hasCollectedAllLetters()) {
+            state.addCompletedWord(state.getTargetWord());
             state.setLastResult("WORD COMPLETE");
+            context.getSaveManager().save(LingoSession.SAVE_FILE);
             context.getSceneManager().setActiveScene(LingoSceneIds.GAME_OVER);
         } else if (state.getLives() <= 0) {
             state.setLastResult("OUT OF LIVES");

@@ -1,7 +1,10 @@
 package io.github.some_example_name.lingoman.model;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public final class GameState {
@@ -16,6 +19,7 @@ public final class GameState {
     private String targetWord = "";
     private final Map<Character, Integer> targetCounts = new LinkedHashMap<>();
     private final Map<Character, Integer> collectedCounts = new HashMap<>();
+    private final List<String> completedWords = new ArrayList<>();
     private int lives = 3;
     private String lastResult = "";
 
@@ -99,6 +103,31 @@ public final class GameState {
             }
         }
         return builder.toString();
+    }
+
+    public void addCompletedWord(String word) {
+        if (word == null || word.isBlank()) {
+            return;
+        }
+        completedWords.add(word.trim());
+    }
+
+    public List<String> getCompletedWords() {
+        return Collections.unmodifiableList(completedWords);
+    }
+
+    public void clearCompletedWords() {
+        completedWords.clear();
+    }
+
+    public void restoreCompletedWords(List<String> words) {
+        completedWords.clear();
+        if (words == null) {
+            return;
+        }
+        for (String word : words) {
+            addCompletedWord(word);
+        }
     }
 
     public void setLastResult(String lastResult) {

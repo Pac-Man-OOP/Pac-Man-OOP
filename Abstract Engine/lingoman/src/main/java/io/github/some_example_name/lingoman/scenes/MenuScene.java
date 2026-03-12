@@ -46,7 +46,9 @@ public class MenuScene implements Scene {
         if (context.getInputManager().isActionJustPressed(LingoInputActions.MENU_CONFIRM)) {
             MenuOption selected = options[selectedIndex];
             if (selected.difficulty != null) {
+                LingoSession.get().getGameState().clearCompletedWords();
                 LingoSession.get().getGameState().setDifficulty(selected.difficulty);
+                context.getSaveManager().save(LingoSession.SAVE_FILE);
                 context.getSceneManager().setActiveScene(LingoSceneIds.GAME);
             } else {
                 Gdx.app.exit();

@@ -1,0 +1,22 @@
+{
+lingoman_session: {
+	entries: {
+		completed_word_1: {
+			class: java.lang.String
+			value: FISH
+		}
+		completed_word_2: {
+			class: java.lang.String
+			value: MOON
+		}
+		completed_word_count: {
+			class: java.lang.Integer
+			value: 3
+		}
+		completed_word_0: {
+			class: java.lang.String
+			value: SUN
+		}
+	}
+}
+}
