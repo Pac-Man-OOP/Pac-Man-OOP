@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Disposable;
 
@@ -16,6 +17,7 @@ public class OutputManager implements Disposable {
     private SpriteBatch batch;
     private BitmapFont font;
     private Texture pixel;
+    private GlyphLayout glyphLayout;
     
     // Abstract Engine requirement: Encapsulate the "How" (LibGDX Batch) 
     // from the "What" (Draw this texture).
@@ -23,7 +25,8 @@ public class OutputManager implements Disposable {
     public OutputManager() {
         this.batch = new SpriteBatch();
         this.font = new BitmapFont(); // Default font
-        this.font.getData().setScale(2.0f); // Make text readable
+        this.font.getData().setScale(1.0f);
+        this.glyphLayout = new GlyphLayout();
         Pixmap pm = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
         pm.setColor(1f, 1f, 1f, 1f);
         pm.fill();
@@ -94,6 +97,68 @@ public class OutputManager implements Disposable {
      */
     public void drawText(String text, float x, float y) {
         font.draw(batch, text, x, y);
+    }
+
+    public void drawText(String text, float x, float y, Color color) {
+        if (color == null) {
+            drawText(text, x, y);
+            return;
+        }
+
+        Color previous = font.getColor();
+        float pr = previous.r;
+        float pg = previous.g;
+        float pb = previous.b;
+        float pa = previous.a;
+        font.setColor(color);
+        font.draw(batch, text, x, y);
+        font.setColor(pr, pg, pb, pa);
+    }
+
+    public void drawTextCentered(String text, float centerX, float y) {
+        drawTextCentered(text, centerX, y, null);
+    }
+
+    public void drawTextCentered(String text, float centerX, float y, Color color) {
+        String safeText = text == null ? "" : text;
+        glyphLayout.setText(font, safeText);
+        drawText(safeText, centerX - glyphLayout.width * 0.5f, y, color);
+    }
+
+    public void drawTextRightAligned(String text, float rightX, float y, Color color) {
+        String safeText = text == null ? "" : text;
+        glyphLayout.setText(font, safeText);
+        drawText(safeText, rightX - glyphLayout.width, y, color);
+    }
+
+    public void drawTextWithShadow(String text, float x, float y, Color color) {
+        drawText(text, x + 2f, y - 2f, new Color(0f, 0f, 0f, 0.7f));
+        drawText(text, x, y, color);
+    }
+
+    public void drawTextCenteredWithShadow(String text, float centerX, float y, Color color) {
+        String safeText = text == null ? "" : text;
+        glyphLayout.setText(font, safeText);
+        float x = centerX - glyphLayout.width * 0.5f;
+        drawTextWithShadow(safeText, x, y, color);
+    }
+
+    public void drawPanel(float x, float y, float width, float height, Color fillColor, Color borderColor) {
+        drawPanel(x, y, width, height, 3f, fillColor, borderColor);
+    }
+
+    public void drawPanel(float x, float y, float width, float height, float borderSize, Color fillColor, Color borderColor) {
+        if (fillColor != null) {
+            drawRect(x, y, width, height, fillColor);
+        }
+        if (borderColor == null || borderSize <= 0f) {
+            return;
+        }
+
+        drawRect(x, y + height - borderSize, width, borderSize, borderColor);
+        drawRect(x, y, width, borderSize, borderColor);
+        drawRect(x, y, borderSize, height, borderColor);
+        drawRect(x + width - borderSize, y, borderSize, height, borderColor);
     }
 
     // Add this method inside your existing OutputManager class

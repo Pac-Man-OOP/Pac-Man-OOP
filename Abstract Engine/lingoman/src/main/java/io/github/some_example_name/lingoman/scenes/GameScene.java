@@ -2,9 +2,7 @@ package io.github.some_example_name.lingoman.scenes;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 import com.badlogic.gdx.graphics.Color;
@@ -12,12 +10,9 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 
 import io.github.some_example_name.EngineContext;
-import io.github.some_example_name.collision.Collider;
 import io.github.some_example_name.collision.EntityCollisionListenerAdapter;
 import io.github.some_example_name.collision.ICollisionListener;
-import io.github.some_example_name.entity.Entity;
-import io.github.some_example_name.entity.EntityManager;
-import io.github.some_example_name.lingoman.LingoCollisionFilter;
+import io.github.some_example_name.collision.Collider;
 import io.github.some_example_name.lingoman.LingoInputActions;
 import io.github.some_example_name.lingoman.LingoSceneIds;
 import io.github.some_example_name.lingoman.LingoSession;
@@ -28,9 +23,7 @@ import io.github.some_example_name.lingoman.entity.WallEntity;
 import io.github.some_example_name.lingoman.level.MazeLayout;
 import io.github.some_example_name.lingoman.model.GameState;
 import io.github.some_example_name.lingoman.model.WordBank;
-import io.github.some_example_name.managers.CollisionManager;
-import io.github.some_example_name.managers.MovementManager;
-import io.github.some_example_name.movement.Movable;
+import io.github.some_example_name.lingoman.world.LingoWorld;
 import io.github.some_example_name.movement.behaviour.FollowPathBehaviour;
 import io.github.some_example_name.movement.behaviour.MovementBehaviour;
 import io.github.some_example_name.movement.behaviour.PatrolBehaviour;
@@ -38,6 +31,15 @@ import io.github.some_example_name.movement.behaviour.SeekTargetBehaviour;
 import io.github.some_example_name.scenes.Scene;
 
 public class GameScene implements Scene {
+
+    private static final Color PANEL_FILL = new Color(0.06f, 0.09f, 0.12f, 0.90f);
+    private static final Color PANEL_BORDER = new Color(0.92f, 0.76f, 0.27f, 1f);
+    private static final Color STATUS_FILL = new Color(0.18f, 0.10f, 0.08f, 0.92f);
+    private static final Color STATUS_BORDER = new Color(0.97f, 0.70f, 0.34f, 1f);
+    private static final Color TEXT_PRIMARY = new Color(0.96f, 0.96f, 0.92f, 1f);
+    private static final Color TEXT_MUTED = new Color(0.72f, 0.77f, 0.79f, 1f);
+    private static final Color TEXT_ACCENT = new Color(0.98f, 0.84f, 0.36f, 1f);
+    private static final Color TEXT_WARNING = new Color(1.00f, 0.64f, 0.47f, 1f);
 
     private static final float PLAYER_SPEED = 140f;
     private static final float GHOST_SPEED_EASY = 70f;
@@ -55,13 +57,7 @@ public class GameScene implements Scene {
     };
 
     private EngineContext context;
-    private final EntityManager entityManager = new EntityManager();
-    private final CollisionManager collisionManager = new CollisionManager();
-    private final MovementManager movementManager = new MovementManager();
-
-    private final List<Collider> colliders = new ArrayList<>();
-    private final Map<Entity, Collider> entityColliders = new IdentityHashMap<>();
-    private final List<Movable> movables = new ArrayList<>();
+    private final LingoWorld world = new LingoWorld();
     private final List<GhostEntity> ghosts = new ArrayList<>();
 
     private PlayerEntity player;
@@ -72,7 +68,6 @@ public class GameScene implements Scene {
     @Override
     public void initialize(EngineContext context) {
         this.context = context;
-        collisionManager.setFilter(new LingoCollisionFilter());
     }
 
     @Override
@@ -105,9 +100,7 @@ public class GameScene implements Scene {
             invulnerableTimer = Math.max(0f, invulnerableTimer - deltaTime);
         }
 
-        entityManager.update(deltaTime);
-        movementManager.updateAll(deltaTime);
-        collisionManager.update();
+        world.update(deltaTime);
 
         GameState state = LingoSession.get().getGameState();
         if (state.hasCollectedAllLetters()) {
@@ -124,17 +117,25 @@ public class GameScene implements Scene {
     @Override
     public void render() {
         context.getOutputManager().clearScreen(0.05f, 0.12f, 0.07f, 1f);
-        entityManager.render(context.getOutputManager());
+        world.render(context.getOutputManager());
 
         GameState state = LingoSession.get().getGameState();
-        context.getOutputManager().drawText("TARGET: " + state.getTargetWord(), 16f, 456f);
-        context.getOutputManager().drawText("COLLECTED: " + state.getCollectedLettersDisplay(), 16f, 428f);
-        context.getOutputManager().drawText("LIVES: " + state.getLives(), 16f, 400f);
-        context.getOutputManager().drawText("DIFFICULTY: " + state.getDifficulty(), 16f, 372f);
-        context.getOutputManager().drawText("MOVE: WASD/ARROWS", 16f, 320f);
-        context.getOutputManager().drawText("ESC or M: MENU", 16f, 292f);
+        context.getOutputManager().drawPanel(12f, 408f, 384f, 60f, 2f, PANEL_FILL, PANEL_BORDER);
+        context.getOutputManager().drawPanel(408f, 408f, 220f, 60f, 2f, PANEL_FILL, PANEL_BORDER);
+        context.getOutputManager().drawPanel(12f, 12f, 616f, 36f, 2f, PANEL_FILL, PANEL_BORDER);
+
+        context.getOutputManager().drawTextWithShadow("Target: " + state.getTargetWord(), 24f, 447f, TEXT_ACCENT);
+        context.getOutputManager().drawTextWithShadow("Progress: " + state.getCollectedLettersDisplay(), 24f, 423f, TEXT_PRIMARY);
+
+        context.getOutputManager().drawTextWithShadow("Lives: " + state.getLives(), 420f, 447f,
+            state.getLives() <= 1 ? TEXT_WARNING : TEXT_PRIMARY);
+        context.getOutputManager().drawTextWithShadow("Mode: " + state.getDifficulty(), 420f, 423f, TEXT_PRIMARY);
+
+        context.getOutputManager().drawTextWithShadow("Move: WASD / Arrows", 24f, 35f, TEXT_PRIMARY);
+        context.getOutputManager().drawTextWithShadow("Menu: M or ESC", 220f, 35f, TEXT_MUTED);
+
         if (!statusMessage.isBlank()) {
-            context.getOutputManager().drawText("STATUS: " + statusMessage, 16f, 344f);
+            context.getOutputManager().drawTextWithShadow(statusMessage, 390f, 35f, TEXT_WARNING);
         }
     }
 
@@ -169,19 +170,8 @@ public class GameScene implements Scene {
     }
 
     private void clearWorld() {
-        for (Collider collider : colliders) {
-            collisionManager.remove(collider);
-        }
-        colliders.clear();
-        entityColliders.clear();
-
-        for (Movable movable : movables) {
-            movementManager.unregisterEntity(movable);
-        }
-        movables.clear();
         ghosts.clear();
-
-        entityManager.clear();
+        world.clear();
     }
 
     private void buildWalls() {
@@ -194,8 +184,7 @@ public class GameScene implements Scene {
                 float x = MazeLayout.toWorldX(col);
                 float y = MazeLayout.toWorldY(row);
                 WallEntity wall = new WallEntity("wall_" + id++, x, y, MazeLayout.TILE_SIZE);
-                entityManager.add(wall);
-                registerCollider(wall, MazeLayout.TILE_SIZE, MazeLayout.TILE_SIZE, null);
+                world.addCollidableEntity(wall, null);
             }
         }
     }
@@ -204,9 +193,7 @@ public class GameScene implements Scene {
         float x = MazeLayout.toWorldXCentered(PLAYER_SPAWN.x, 28f);
         float y = MazeLayout.toWorldYCentered(PLAYER_SPAWN.y, 28f);
         player = new PlayerEntity("player", context.getInputManager(), x, y, PLAYER_SPEED);
-        entityManager.add(player);
-        registerMovable(player);
-        registerCollider(player, player.getWidth(), player.getHeight(), new PlayerCollisionListener());
+        world.addCollidableEntity(player, new PlayerCollisionListener());
     }
 
     private void buildGhosts(GameState.Difficulty difficulty) {
@@ -234,10 +221,8 @@ public class GameScene implements Scene {
             float y = MazeLayout.toWorldYCentered(spawn.y, 28f);
             GhostEntity ghost = new GhostEntity("ghost_" + i, colors.get(i % colors.size()), x, y);
             ghosts.add(ghost);
-            entityManager.add(ghost);
-            registerMovable(ghost);
-            movementManager.assignBehaviour(ghost, buildGhostBehaviour(i, speed));
-            registerCollider(ghost, ghost.getWidth(), ghost.getHeight(), new EntityCollisionListenerAdapter(ghost));
+            world.addCollidableEntity(ghost, new EntityCollisionListenerAdapter(ghost));
+            world.assignBehaviour(ghost, buildGhostBehaviour(i, speed));
         }
     }
 
@@ -260,8 +245,7 @@ public class GameScene implements Scene {
             float x = MazeLayout.toWorldXCentered(cell.x, LETTER_SIZE);
             float y = MazeLayout.toWorldYCentered(cell.y, LETTER_SIZE);
             LetterEntity entity = new LetterEntity("letter_" + i, letter, x, y, LETTER_SIZE);
-            entityManager.add(entity);
-            registerCollider(entity, entity.getWidth(), entity.getHeight(), null);
+            world.addCollidableEntity(entity, null);
         }
     }
 
@@ -311,22 +295,6 @@ public class GameScene implements Scene {
         }
     }
 
-    private void registerMovable(Movable movable) {
-        if (movable == null) {
-            return;
-        }
-        movables.add(movable);
-        movementManager.registerEntity(movable);
-    }
-
-    private void registerCollider(Entity owner, float width, float height, ICollisionListener listener) {
-        Collider collider = new Collider(owner, width, height);
-        collider.setListener(listener);
-        collisionManager.add(collider);
-        colliders.add(collider);
-        entityColliders.put(owner, collider);
-    }
-
     private void handlePlayerHit() {
         if (invulnerableTimer > 0f) {
             return;
@@ -356,12 +324,7 @@ public class GameScene implements Scene {
                     return;
                 }
                 LingoSession.get().getGameState().collectLetter(letter.getLetter());
-                letter.setActive(false);
-                Collider letterCollider = entityColliders.remove(letter);
-                if (letterCollider != null) {
-                    collisionManager.remove(letterCollider);
-                    colliders.remove(letterCollider);
-                }
+                world.removeEntity(letter);
                 showStatus("Collected: " + letter.getLetter());
             } else if (owner instanceof GhostEntity) {
                 handlePlayerHit();

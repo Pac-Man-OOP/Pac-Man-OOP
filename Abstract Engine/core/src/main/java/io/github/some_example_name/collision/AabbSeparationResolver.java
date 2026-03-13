@@ -26,6 +26,8 @@ public final class AabbSeparationResolver implements ICollisionResolver {
         Entity ea = a.getOwner();
         Entity eb = b.getOwner();
 
+        if (ea.isTrigger() || eb.isTrigger()) return;
+
         boolean aStatic = ea.isStatic();
         boolean bStatic = eb.isStatic();
 

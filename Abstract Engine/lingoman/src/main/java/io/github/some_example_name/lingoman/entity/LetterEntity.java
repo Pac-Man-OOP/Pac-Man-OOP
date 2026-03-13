@@ -23,6 +23,16 @@ public class LetterEntity extends Entity {
     }
 
     @Override
+    public boolean isStatic() {
+        return true;
+    }
+
+    @Override
+    public boolean isTrigger() {
+        return true;
+    }
+
+    @Override
     public void render(OutputManager outputManager) {
         outputManager.drawRect(getX(), getY(), getWidth(), getHeight(), color);
         outputManager.drawText(String.valueOf(letter), getX() + 6f, getY() + getHeight() - 6f);
