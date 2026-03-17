@@ -83,6 +83,14 @@ public class MovementManager {
         return physics;
     }
 
+    /**
+     * Allows subclasses to declare that a movable's per-frame update logic is
+     * fully driven by this manager instead of the entity manager.
+     */
+    public boolean ownsEntityUpdateCycle(Movable entity) {
+        return false;
+    }
+
     private boolean isActive(Object candidate) {
         return !(candidate instanceof Activatable activatable) || activatable.isActive();
     }

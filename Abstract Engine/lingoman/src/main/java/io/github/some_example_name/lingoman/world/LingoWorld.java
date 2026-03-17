@@ -11,7 +11,7 @@ import io.github.some_example_name.collision.ICollisionListener;
 import io.github.some_example_name.entity.Entity;
 import io.github.some_example_name.entity.EntityManager;
 import io.github.some_example_name.lingoman.LingoCollisionFilter;
-import io.github.some_example_name.lingoman.entity.GhostEntity;
+import io.github.some_example_name.lingoman.managers.LingoMovementManager;
 import io.github.some_example_name.managers.CollisionManager;
 import io.github.some_example_name.managers.MovementManager;
 import io.github.some_example_name.managers.OutputManager;
@@ -28,7 +28,7 @@ public final class LingoWorld {
 
     private final EntityManager entityManager = new EntityManager();
     private final CollisionManager collisionManager = new CollisionManager();
-    private final MovementManager movementManager = new MovementManager();
+    private final MovementManager movementManager = new LingoMovementManager();
     private final Set<Entity> entities = java.util.Collections.newSetFromMap(new IdentityHashMap<>());
     private final Map<Entity, Collider> collidersByEntity = new IdentityHashMap<>();
     private final Set<Movable> movables = java.util.Collections.newSetFromMap(new IdentityHashMap<>());
@@ -47,12 +47,9 @@ public final class LingoWorld {
             entityManager.add(entity);
         }
 
-        if (entity instanceof GhostEntity) {
-            return;
-        }
-
         if (entity instanceof Movable movable && movables.add(movable)) {
             movementManager.registerEntity(movable);
+            entityManager.setExternallyManagedUpdate(entity, movementManager.ownsEntityUpdateCycle(movable));
         }
     }
 
@@ -79,12 +76,11 @@ public final class LingoWorld {
         if (movable == null) {
             return;
         }
-        if (movable instanceof GhostEntity) {
-            movable.setMovementBehaviour(behaviour);
-            return;
-        }
         if (movables.add(movable)) {
             movementManager.registerEntity(movable);
+            if (movable instanceof Entity entity) {
+                entityManager.setExternallyManagedUpdate(entity, movementManager.ownsEntityUpdateCycle(movable));
+            }
         }
         movementManager.assignBehaviour(movable, behaviour);
     }
@@ -123,6 +119,9 @@ public final class LingoWorld {
 
         for (Movable movable : new ArrayList<>(movables)) {
             movementManager.unregisterEntity(movable);
+            if (movable instanceof Entity entity) {
+                entityManager.setExternallyManagedUpdate(entity, false);
+            }
         }
         movables.clear();
 
@@ -142,6 +141,7 @@ public final class LingoWorld {
 
             if (entity instanceof Movable movable && movables.remove(movable)) {
                 movementManager.unregisterEntity(movable);
+                entityManager.setExternallyManagedUpdate(entity, false);
             }
 
             entities.remove(entity);
