@@ -101,6 +101,7 @@ public class GameScene implements Scene {
         }
 
         world.update(deltaTime);
+        wrapTunnelTravellers();
         updateMovementAudio();
 
         GameState state = LingoSession.get().getGameState();
@@ -347,6 +348,25 @@ public class GameScene implements Scene {
     private void stopGameplayAudio() {
         stopMovementAudio();
         context.getAudioManager().stopMusic();
+    }
+
+    private void wrapTunnelTravellers() {
+        wrapTunnelTraveller(player);
+        for (GhostEntity ghost : ghosts) {
+            wrapTunnelTraveller(ghost);
+        }
+    }
+
+    private void wrapTunnelTraveller(io.github.some_example_name.entity.Entity entity) {
+        if (entity == null || currentLayout == null) {
+            return;
+        }
+
+        float wrappedX = MazeLayout.wrapTunnelX(
+            currentLayout, entity.getX(), entity.getY(), entity.getWidth(), entity.getHeight());
+        if (wrappedX != entity.getX()) {
+            entity.setX(wrappedX);
+        }
     }
 
     private void showStatus(String message) {
