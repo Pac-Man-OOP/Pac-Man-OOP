@@ -12,6 +12,10 @@ import com.badlogic.gdx.math.GridPoint2;
 import com.badlogic.gdx.math.Vector2;
 
 import io.github.some_example_name.EngineContext;
+import io.github.some_example_name.collision.Collider;
+import io.github.some_example_name.collision.EntityCollisionListenerAdapter;
+import io.github.some_example_name.collision.ICollisionListener;
+import io.github.some_example_name.lingoman.LingoAudio;
 import io.github.some_example_name.lingoman.LingoInputActions;
 import io.github.some_example_name.lingoman.LingoSceneIds;
 import io.github.some_example_name.lingoman.LingoSession;
@@ -123,23 +127,22 @@ public class GameScene implements Scene {
     @Override
     public void initialize(EngineContext context) {
         this.context = context;
-        roundManager.initialize(context);
     }
 
     @Override
     public void enter() {
+        context.getAudioManager().playMusic(LingoAudio.BGM_GAME, true);
         if (!LingoSession.get().consumeGameResumeRequest()) {
-            roundManager.startNewRound(hudManager);
+            startNewGame();
             System.out.println("[LingoMan] Game started");
         } else {
             System.out.println("[LingoMan] Game resumed");
         }
-        gameplayAudioManager.enterGameplay(context);
     }
 
     @Override
     public void exit() {
-        gameplayAudioManager.exitGameplay(context);
+        stopMovementAudio();
         System.out.println("[LingoMan] Game exit");
     }
 
@@ -208,8 +211,8 @@ public class GameScene implements Scene {
 
     @Override
     public void dispose() {
-        gameplayAudioManager.stopGameplayAudio(context);
-        roundManager.dispose();
+        stopGameplayAudio();
+        clearWorld();
         System.out.println("[LingoMan] Game disposed");
     }
 
@@ -423,7 +426,6 @@ public class GameScene implements Scene {
     }
 
     private MovementBehaviour buildGhostBehaviour(GhostLoadout loadout, float speed) {
-        float threshold = Math.max(2f, currentLayout.getTileSize() * 0.22f);
         float adjustedSpeed = speed * (loadout == null ? 1f : loadout.speedMultiplier);
         GhostMovePattern pattern = loadout == null ? GhostMovePattern.SEEK : loadout.movePattern;
         return switch (pattern) {
@@ -988,6 +990,7 @@ public class GameScene implements Scene {
 
                 world.removeEntity(pickup);
                 freezePickup = null;
+                context.getAudioManager().playSound(LingoAudio.SFX_POWERUP, false);
                 activateFreeze();
             } else if (owner instanceof ShockPickupEntity pickup) {
                 if (!pickup.isActive()) {
@@ -996,6 +999,7 @@ public class GameScene implements Scene {
 
                 world.removeEntity(pickup);
                 shockPickup = null;
+                context.getAudioManager().playSound(LingoAudio.SFX_POWERUP, false);
                 activateShock();
             } else if (owner instanceof GhostEntity ghost) {
                 handlePlayerGhostContact(ghost);

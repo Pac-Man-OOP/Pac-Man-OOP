@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
 
 import io.github.some_example_name.EngineContext;
+import io.github.some_example_name.lingoman.LingoAudio;
 import io.github.some_example_name.lingoman.LingoInputActions;
 import io.github.some_example_name.lingoman.LingoSession;
 import io.github.some_example_name.managers.AudioManager;
@@ -47,9 +48,11 @@ public class SettingsScene implements Scene {
     public void handleInput() {
         if (context.getInputManager().isActionJustPressed(LingoInputActions.MENU_UP)) {
             selectedRow = (selectedRow + 2) % 3;
+            context.getAudioManager().playSound(LingoAudio.SFX_MENU_NAVIGATE, false);
         }
         if (context.getInputManager().isActionJustPressed(LingoInputActions.MENU_DOWN)) {
             selectedRow = (selectedRow + 1) % 3;
+            context.getAudioManager().playSound(LingoAudio.SFX_MENU_NAVIGATE, false);
         }
         if (context.getInputManager().isActionJustPressed(LingoInputActions.MENU_LEFT)) {
             adjustSelectedVolume(-VOLUME_STEP);

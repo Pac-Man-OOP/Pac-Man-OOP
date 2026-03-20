@@ -20,11 +20,6 @@ public final class LingoSprites {
     private static final int HEDGE_TILE_SIZE = 24;
     private static final int HEDGE_VARIANTS = 2;
 
-    private static final Color PLAYER_OUTLINE = new Color(0.07f, 0.16f, 0.22f, 1f);
-    private static final Color PLAYER_GOLD = new Color(0.96f, 0.78f, 0.23f, 1f);
-    private static final Color PLAYER_GLOW = new Color(0.99f, 0.88f, 0.42f, 1f);
-    private static final Color PLAYER_ACCENT = new Color(0.18f, 0.66f, 0.89f, 1f);
-    private static final Color PLAYER_EYE = new Color(0.97f, 0.99f, 1f, 1f);
     private static final Color GHOST_EYE = new Color(0.96f, 0.98f, 1f, 1f);
     private static final Color GHOST_PUPIL = new Color(0.08f, 0.16f, 0.24f, 1f);
     private static final Color FLOOR_GRASS_DARK = new Color(0.10f, 0.30f, 0.04f, 1f);

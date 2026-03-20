@@ -8,6 +8,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 
 import io.github.some_example_name.EngineContext;
+import io.github.some_example_name.lingoman.LingoAudio;
 import io.github.some_example_name.lingoman.LingoInputActions;
 import io.github.some_example_name.lingoman.LingoSceneIds;
 import io.github.some_example_name.lingoman.LingoSession;
@@ -68,9 +69,11 @@ public class MenuScene implements Scene, ISaveable {
     public void handleInput() {
         if (context.getInputManager().isActionJustPressed(LingoInputActions.MENU_UP)) {
             selectedIndex = (selectedIndex - 1 + options.length) % options.length;
+            context.getAudioManager().playSound(LingoAudio.SFX_MENU_NAVIGATE, false);
         }
         if (context.getInputManager().isActionJustPressed(LingoInputActions.MENU_DOWN)) {
             selectedIndex = (selectedIndex + 1) % options.length;
+            context.getAudioManager().playSound(LingoAudio.SFX_MENU_NAVIGATE, false);
         }
         if (context.getInputManager().isActionJustPressed(LingoInputActions.MENU_CONFIRM)) {
             MenuOption selected = options[selectedIndex];

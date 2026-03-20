@@ -5,6 +5,7 @@ import java.util.List;
 import com.badlogic.gdx.graphics.Color;
 
 import io.github.some_example_name.EngineContext;
+import io.github.some_example_name.lingoman.LingoAudio;
 import io.github.some_example_name.lingoman.LingoInputActions;
 import io.github.some_example_name.lingoman.LingoSceneIds;
 import io.github.some_example_name.lingoman.LingoSession;
@@ -46,10 +47,12 @@ public class FoundWordsScene implements Scene {
 
         if (context.getInputManager().isActionJustPressed(LingoInputActions.MENU_UP)) {
             pageStartIndex = Math.max(0, pageStartIndex - ROWS_PER_PAGE);
+            context.getAudioManager().playSound(LingoAudio.SFX_MENU_NAVIGATE, false);
         }
         if (context.getInputManager().isActionJustPressed(LingoInputActions.MENU_DOWN)) {
             int maxStart = Math.max(0, total - ROWS_PER_PAGE);
             pageStartIndex = Math.min(maxStart, pageStartIndex + ROWS_PER_PAGE);
+            context.getAudioManager().playSound(LingoAudio.SFX_MENU_NAVIGATE, false);
         }
 
         if (context.getInputManager().isActionJustPressed(LingoInputActions.GAME_MENU)

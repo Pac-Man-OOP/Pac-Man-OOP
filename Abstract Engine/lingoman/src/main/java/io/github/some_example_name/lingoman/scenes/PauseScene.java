@@ -35,7 +35,6 @@ public class PauseScene implements Scene {
     @Override
     public void enter() {
         selectedIndex = 0;
-        context.getAudioManager().playMusic(LingoAudio.BGM_GAME, true);
     }
 
     @Override
@@ -46,9 +45,11 @@ public class PauseScene implements Scene {
     public void handleInput() {
         if (context.getInputManager().isActionJustPressed(LingoInputActions.MENU_UP)) {
             selectedIndex = (selectedIndex - 1 + OPTIONS.length) % OPTIONS.length;
+            context.getAudioManager().playSound(LingoAudio.SFX_MENU_NAVIGATE, false);
         }
         if (context.getInputManager().isActionJustPressed(LingoInputActions.MENU_DOWN)) {
             selectedIndex = (selectedIndex + 1) % OPTIONS.length;
+            context.getAudioManager().playSound(LingoAudio.SFX_MENU_NAVIGATE, false);
         }
         if (context.getInputManager().isActionJustPressed(LingoInputActions.GAME_MENU)) {
             resumeGame();
