@@ -2,6 +2,7 @@ package io.github.some_example_name.managers;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,12 +12,19 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Disposable;
 
+import io.github.some_example_name.managers.audio.AudioDefinition;
+import io.github.some_example_name.managers.audio.AudioLoadResult;
+import io.github.some_example_name.managers.audio.AudioLoader;
+import io.github.some_example_name.managers.audio.AudioLoaderRegistry;
+import io.github.some_example_name.managers.audio.AudioAssetType;
+
 public class AudioManager implements Disposable {
 
     private final Map<String, Sound> soundEffects = new HashMap<>();
     private final Map<String, Music> musicTracks = new HashMap<>();
     private final Map<String, Float> soundVolumes = new HashMap<>();
     private final Map<String, Long> loopingSoundInstances = new HashMap<>();
+    private final AudioLoaderRegistry audioLoaderRegistry;
 
     private float masterVolume = 1f;
     private float musicVolume = 1f;
@@ -24,38 +32,39 @@ public class AudioManager implements Disposable {
     private boolean muted = false;
     private Music currentMusic;
 
-    public void loadSound(String id, String path) {
-        validateIdAndPath(id, path);
-        if (!Gdx.files.internal(path).exists()) {
-            logMissingAsset("sound", id, path);
-            return;
-        }
+    public AudioManager() {
+        this(new AudioLoaderRegistry());
+    }
 
-        Sound previous = soundEffects.put(id, Gdx.audio.newSound(Gdx.files.internal(path)));
-        if (previous != null) {
-            Long loopingInstanceId = loopingSoundInstances.remove(id);
-            if (loopingInstanceId != null) {
-                previous.stop(loopingInstanceId);
-            }
-            previous.dispose();
+    public AudioManager(AudioLoaderRegistry audioLoaderRegistry) {
+        if (audioLoaderRegistry == null) {
+            throw new IllegalArgumentException("audioLoaderRegistry cannot be null");
         }
-        soundVolumes.putIfAbsent(id, 1f);
+        this.audioLoaderRegistry = audioLoaderRegistry;
+    }
+
+    public void loadSound(String id, String path) {
+        loadSound(AudioDefinition.sound(id, path));
     }
 
     public void loadMusic(String id, String path) {
-        validateIdAndPath(id, path);
-        if (!Gdx.files.internal(path).exists()) {
-            logMissingAsset("music", id, path);
-            return;
-        }
+        loadMusic(AudioDefinition.music(id, path));
+    }
 
-        Music previous = musicTracks.put(id, Gdx.audio.newMusic(Gdx.files.internal(path)));
-        if (previous != null) {
-            if (currentMusic == previous) {
-                currentMusic = null;
-            }
-            previous.dispose();
-        }
+    public void loadSound(String id, String primaryPath, String... fallbackPaths) {
+        loadSound(AudioDefinition.sound(id, primaryPath, fallbackPaths));
+    }
+
+    public void loadMusic(String id, String primaryPath, String... fallbackPaths) {
+        loadMusic(AudioDefinition.music(id, primaryPath, fallbackPaths));
+    }
+
+    public void registerSoundLoader(String extension, AudioLoader<Sound> loader) {
+        audioLoaderRegistry.register(AudioAssetType.SOUND, extension, loader);
+    }
+
+    public void registerMusicLoader(String extension, AudioLoader<Music> loader) {
+        audioLoaderRegistry.register(AudioAssetType.MUSIC, extension, loader);
     }
 
     public void playSound(String id, boolean loop) {
@@ -202,18 +211,10 @@ public class AudioManager implements Disposable {
         currentMusic = null;
     }
 
-    private void validateIdAndPath(String id, String path) {
-        if (id == null || id.isBlank()) {
-            throw new IllegalArgumentException("Audio id cannot be null or blank.");
-        }
-        if (path == null || path.isBlank()) {
-            throw new IllegalArgumentException("Audio path cannot be null or blank.");
-        }
-    }
-
-    private void logMissingAsset(String type, String id, String path) {
+    private void logMissingAsset(String type, String id, List<String> candidatePaths) {
         if (Gdx.app != null) {
-            Gdx.app.log("AudioManager", "Skipping missing " + type + " [" + id + "] at path: " + path);
+            Gdx.app.log("AudioManager",
+                "Skipping " + type + " [" + id + "]; no supported candidate found at paths: " + String.join(", ", candidatePaths));
         }
     }
 
@@ -238,5 +239,39 @@ public class AudioManager implements Disposable {
             return;
         }
         sound.setVolume(instanceId, resolveSoundVolume(id));
+    }
+
+    private void loadSound(AudioDefinition definition) {
+        AudioLoadResult<?> loadResult = audioLoaderRegistry.loadFirstAvailable(definition);
+        if (loadResult == null) {
+            logMissingAsset("sound", definition.getId(), definition.getCandidatePaths());
+            return;
+        }
+
+        Sound previous = soundEffects.put(definition.getId(), (Sound) loadResult.getAsset());
+        if (previous != null) {
+            Long loopingInstanceId = loopingSoundInstances.remove(definition.getId());
+            if (loopingInstanceId != null) {
+                previous.stop(loopingInstanceId);
+            }
+            previous.dispose();
+        }
+        soundVolumes.putIfAbsent(definition.getId(), 1f);
+    }
+
+    private void loadMusic(AudioDefinition definition) {
+        AudioLoadResult<?> loadResult = audioLoaderRegistry.loadFirstAvailable(definition);
+        if (loadResult == null) {
+            logMissingAsset("music", definition.getId(), definition.getCandidatePaths());
+            return;
+        }
+
+        Music previous = musicTracks.put(definition.getId(), (Music) loadResult.getAsset());
+        if (previous != null) {
+            if (currentMusic == previous) {
+                currentMusic = null;
+            }
+            previous.dispose();
+        }
     }
 }

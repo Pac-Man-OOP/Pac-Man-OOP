@@ -1,4 +1,6 @@
-Place audio files in this folder using OGG format (`.ogg`).
+Place audio files in this folder using supported libGDX audio formats such as OGG (`.ogg`), MP3 (`.mp3`), or WAV (`.wav`).
+
+The audio manager can try multiple candidate files for the same audio ID in order, so a game module can prefer one format and fall back to another when needed.
 
 Expected files:
 - `menu_navigate.ogg`
