@@ -67,6 +67,31 @@ public class OutputManager implements Disposable {
     }
 
     /**
+     * Draws a texture centered on itself with rotation applied.
+     */
+    public void drawRotated(Texture texture, float x, float y, float width, float height, float rotationDegrees) {
+        if (texture == null) return;
+        batch.draw(
+            texture,
+            x,
+            y,
+            width * 0.5f,
+            height * 0.5f,
+            width,
+            height,
+            1f,
+            1f,
+            rotationDegrees,
+            0,
+            0,
+            texture.getWidth(),
+            texture.getHeight(),
+            false,
+            false
+        );
+    }
+
+    /**
      * Draws a texture with specified size and tint color.
      * Useful for debug overlays (hitboxes, bounding boxes, etc.).
      */

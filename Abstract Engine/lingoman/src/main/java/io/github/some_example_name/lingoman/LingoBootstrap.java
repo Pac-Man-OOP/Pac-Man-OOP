@@ -42,6 +42,7 @@ public final class LingoBootstrap implements EngineBootstrap {
         input.bindAction(LingoInputActions.MOVE_DOWN, Input.Keys.DOWN, Input.Keys.S);
         input.bindAction(LingoInputActions.MOVE_LEFT, Input.Keys.LEFT, Input.Keys.A);
         input.bindAction(LingoInputActions.MOVE_RIGHT, Input.Keys.RIGHT, Input.Keys.D);
+        input.bindAction(LingoInputActions.DASH, Input.Keys.SPACE);
     }
 
     private void configureScenes(SceneManager sceneManager) {

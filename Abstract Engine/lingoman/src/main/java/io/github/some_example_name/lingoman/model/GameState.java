@@ -107,9 +107,7 @@ public final class GameState {
 
     public void addFoundWord(String word) {
         String normalized = normalizeWord(word);
-        if (!normalized.isEmpty()) {
-            foundWords.add(normalized);
-        }
+        addUniqueFoundWord(normalized);
     }
 
     public List<String> getFoundWords() {
@@ -126,10 +124,7 @@ public final class GameState {
             return;
         }
         for (String word : words) {
-            String normalized = normalizeWord(word);
-            if (!normalized.isEmpty()) {
-                foundWords.add(normalized);
-            }
+            addUniqueFoundWord(normalizeWord(word));
         }
     }
 
@@ -143,5 +138,12 @@ public final class GameState {
 
     private String normalizeWord(String word) {
         return word == null ? "" : word.trim().toUpperCase();
+    }
+
+    private void addUniqueFoundWord(String normalizedWord) {
+        if (normalizedWord == null || normalizedWord.isEmpty() || foundWords.contains(normalizedWord)) {
+            return;
+        }
+        foundWords.add(normalizedWord);
     }
 }

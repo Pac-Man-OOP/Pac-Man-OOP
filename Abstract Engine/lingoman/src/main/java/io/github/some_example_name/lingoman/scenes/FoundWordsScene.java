@@ -20,7 +20,7 @@ public class FoundWordsScene implements Scene {
     private static final Color TEXT_MUTED = new Color(0.71f, 0.76f, 0.77f, 1f);
     private static final Color TEXT_ACCENT = new Color(0.98f, 0.84f, 0.36f, 1f);
 
-    private static final int ROWS_PER_PAGE = 9;
+    private static final int ROWS_PER_PAGE = 8;
 
     private EngineContext context;
     private int pageStartIndex;
@@ -65,7 +65,7 @@ public class FoundWordsScene implements Scene {
     @Override
     public void render() {
         context.getOutputManager().clearScreen(BACKGROUND.r, BACKGROUND.g, BACKGROUND.b, BACKGROUND.a);
-        context.getOutputManager().drawPanel(68f, 62f, 504f, 356f, PANEL_FILL, PANEL_BORDER);
+        context.getOutputManager().drawPanel(68f, 54f, 504f, 364f, PANEL_FILL, PANEL_BORDER);
 
         List<String> foundWords = LingoSession.get().getGameState().getFoundWords();
         int total = foundWords.size();
@@ -88,7 +88,7 @@ public class FoundWordsScene implements Scene {
             }
         }
 
-        context.getOutputManager().drawTextCentered("UP/DOWN: page    ENTER, M or ESC: back", 320f, 86f, TEXT_MUTED);
+        context.getOutputManager().drawTextCentered("UP/DOWN: page    ENTER, M or ESC: back", 320f, 70f, TEXT_MUTED);
     }
 
     @Override
