@@ -110,6 +110,10 @@ public final class MazeLayout {
         return !isWall(layout, col, row);
     }
 
+    public static boolean isTunnelRow(Layout layout, int row) {
+        return layout != null && row == layout.rows / 2;
+    }
+
     public static List<GridPoint2> collectReachableOpenCells(Layout layout, GridPoint2 start) {
         List<GridPoint2> reachable = new ArrayList<>();
         if (layout == null || start == null || isWall(layout, start.x, start.y)) {
@@ -234,6 +238,29 @@ public final class MazeLayout {
         col = Math.max(0, Math.min(layout.cols - 1, col));
         row = Math.max(0, Math.min(layout.rows - 1, row));
         return new GridPoint2(col, row);
+    }
+
+    public static float wrapTunnelX(Layout layout, float x, float y, float width, float height) {
+        if (layout == null) {
+            return x;
+        }
+
+        float centerY = y + height * 0.5f;
+        int rowFromBottom = (int) ((centerY - layout.offsetY) / layout.tileSize);
+        int row = layout.rows - 1 - rowFromBottom;
+        if (!isTunnelRow(layout, row)) {
+            return x;
+        }
+
+        float leftLimit = layout.offsetX - width;
+        float rightLimit = layout.offsetX + layout.cols * layout.tileSize;
+        if (x <= leftLimit) {
+            return rightLimit;
+        }
+        if (x >= rightLimit) {
+            return leftLimit;
+        }
+        return x;
     }
 
     private static Layout createLayout(int cols, int rows, int tileSize, long seed, int extraOpenings, int roomCount) {
