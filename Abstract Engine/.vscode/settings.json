@@ -1,0 +1,9 @@
+{
+  "code-runner.runInTerminal": true,
+  "code-runner.executorMap": {
+    "java": "export JAVA_HOME=\"/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home\" && export PATH=\"$JAVA_HOME/bin:$PATH\" && cd \"/Users/adilhadizul/Documents/GitHub/Pac-Man-OOP/Abstract Engine\" && ./gradlew lwjgl3:run"
+  },
+  "code-runner.executorMapByFileExtension": {
+    ".java": "export JAVA_HOME=\"/opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk/Contents/Home\" && export PATH=\"$JAVA_HOME/bin:$PATH\" && cd \"/Users/adilhadizul/Documents/GitHub/Pac-Man-OOP/Abstract Engine\" && ./gradlew lwjgl3:run"
+  }
+}
