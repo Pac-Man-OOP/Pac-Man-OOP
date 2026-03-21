@@ -198,11 +198,11 @@ public class GameScene implements Scene {
         world.render(context.getOutputManager());
 
         GameState state = LingoSession.get().getGameState();
-        context.getOutputManager().drawTextWithShadow("Target: " + state.getTargetWord(), 28f, 474f, TEXT_ACCENT);
-        context.getOutputManager().drawTextWithShadow("Progress: " + state.getCollectedLettersDisplay(), 28f, 454f, TEXT_PRIMARY);
+
+        context.getOutputManager().drawTextWithShadow("Progress: " + state.getCollectedLettersDisplay(), 28f, 474f, TEXT_PRIMARY);
         char nextLetter = state.getNextExpectedLetter();
         String nextHint = nextLetter == '\0' ? "Next: -" : "Next: " + nextLetter;
-        context.getOutputManager().drawTextWithShadow(nextHint, 28f, 434f, TEXT_WARNING);
+        context.getOutputManager().drawTextWithShadow(nextHint, 28f, 454f, TEXT_WARNING);
 
         context.getOutputManager().drawTextWithShadow("Lives: " + state.getLives(), 432f, 474f,
             state.getLives() <= 1 ? TEXT_WARNING : TEXT_PRIMARY);
