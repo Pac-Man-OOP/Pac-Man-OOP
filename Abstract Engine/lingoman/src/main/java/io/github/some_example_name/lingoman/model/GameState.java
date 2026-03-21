@@ -1,11 +1,8 @@
 package io.github.some_example_name.lingoman.model;
 
-import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 public final class GameState {
 
@@ -17,8 +14,7 @@ public final class GameState {
 
     private Difficulty difficulty = Difficulty.EASY;
     private String targetWord = "";
-    private final Map<Character, Integer> targetCounts = new LinkedHashMap<>();
-    private final Map<Character, Integer> collectedCounts = new HashMap<>();
+    private int collectedIndex = 0;
     private final List<String> foundWords = new ArrayList<>();
     private int lives = 3;
     private String lastResult = "";
@@ -38,13 +34,8 @@ public final class GameState {
     }
 
     public void setTargetWord(String targetWord) {
-        this.targetWord = targetWord == null ? "" : targetWord;
-        targetCounts.clear();
-        collectedCounts.clear();
-        for (int i = 0; i < this.targetWord.length(); i++) {
-            char letter = Character.toLowerCase(this.targetWord.charAt(i));
-            targetCounts.put(letter, targetCounts.getOrDefault(letter, 0) + 1);
-        }
+        this.targetWord = targetWord == null ? "" : targetWord.trim().toUpperCase();
+        collectedIndex = 0;
     }
 
     public int getLives() {
@@ -59,45 +50,45 @@ public final class GameState {
         lives = Math.max(0, lives - 1);
     }
 
-    public void collectLetter(char letter) {
-        char normalized = Character.toLowerCase(letter);
-        int target = targetCounts.getOrDefault(normalized, 0);
-        if (target == 0) {
-            return;
+    public boolean isNextExpectedLetter(char letter) {
+        if (targetWord.isBlank() || collectedIndex >= targetWord.length()) {
+            return false;
         }
-        int current = collectedCounts.getOrDefault(normalized, 0);
-        if (current < target) {
-            collectedCounts.put(normalized, current + 1);
+        return Character.toUpperCase(letter) == targetWord.charAt(collectedIndex);
+    }
+
+    public boolean collectNextLetter(char letter) {
+        if (!isNextExpectedLetter(letter)) {
+            return false;
         }
+        collectedIndex++;
+        return true;
+    }
+
+    public char getNextExpectedLetter() {
+        if (targetWord.isBlank() || collectedIndex >= targetWord.length()) {
+            return '\0';
+        }
+        return targetWord.charAt(collectedIndex);
+    }
+
+    public int getCollectedIndex() {
+        return collectedIndex;
     }
 
     public boolean hasCollectedAllLetters() {
-        if (targetWord.isBlank()) {
-            return false;
-        }
-        for (Map.Entry<Character, Integer> entry : targetCounts.entrySet()) {
-            int collected = collectedCounts.getOrDefault(entry.getKey(), 0);
-            if (collected < entry.getValue()) {
-                return false;
-            }
-        }
-        return true;
+        return !targetWord.isBlank() && collectedIndex >= targetWord.length();
     }
 
     public String getCollectedLettersDisplay() {
         if (targetWord.isBlank()) {
             return "";
         }
-        Map<Character, Integer> usedCounts = new HashMap<>();
+
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < targetWord.length(); i++) {
-            char letter = targetWord.charAt(i);
-            char normalized = Character.toLowerCase(letter);
-            int used = usedCounts.getOrDefault(normalized, 0);
-            int collected = collectedCounts.getOrDefault(normalized, 0);
-            if (collected > used) {
-                builder.append(letter);
-                usedCounts.put(normalized, used + 1);
+            if (i < collectedIndex) {
+                builder.append(targetWord.charAt(i));
             } else {
                 builder.append('_');
             }

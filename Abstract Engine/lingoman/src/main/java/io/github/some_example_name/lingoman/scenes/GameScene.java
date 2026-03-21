@@ -200,6 +200,9 @@ public class GameScene implements Scene {
         GameState state = LingoSession.get().getGameState();
         context.getOutputManager().drawTextWithShadow("Target: " + state.getTargetWord(), 28f, 474f, TEXT_ACCENT);
         context.getOutputManager().drawTextWithShadow("Progress: " + state.getCollectedLettersDisplay(), 28f, 454f, TEXT_PRIMARY);
+        char nextLetter = state.getNextExpectedLetter();
+        String nextHint = nextLetter == '\0' ? "Next: -" : "Next: " + nextLetter;
+        context.getOutputManager().drawTextWithShadow(nextHint, 28f, 434f, TEXT_WARNING);
 
         context.getOutputManager().drawTextWithShadow("Lives: " + state.getLives(), 432f, 474f,
             state.getLives() <= 1 ? TEXT_WARNING : TEXT_PRIMARY);
@@ -210,7 +213,13 @@ public class GameScene implements Scene {
         context.getOutputManager().drawTextRightAlignedWithShadow("Menu: M or ESC", 610f, 18f, TEXT_MUTED);
 
         if (!statusMessage.isBlank()) {
-            context.getOutputManager().drawTextRightAlignedWithShadow(statusMessage, 610f, 18f, TEXT_WARNING);
+            context.getOutputManager().drawTextCenteredScaled(
+                statusMessage,
+                320f,
+                474f,
+                TEXT_WARNING,
+                0.8f
+            );
         }
     }
 
@@ -985,10 +994,24 @@ public class GameScene implements Scene {
                     return;
                 }
 
-                LingoSession.get().getGameState().collectLetter(letter.getLetter());
-                context.getAudioManager().playSound(LingoAudio.SFX_COLLECT_LETTER, false);
-                world.removeEntity(letter);
-                showStatus("Collected: " + letter.getLetter());
+                GameState state = LingoSession.get().getGameState();
+                char picked = Character.toUpperCase(letter.getLetter());
+
+                if (state.collectNextLetter(picked)) {
+                    context.getAudioManager().playSound(LingoAudio.SFX_COLLECT_LETTER, false);
+                    world.removeEntity(letter);
+                    showStatus("Correct: " + picked);
+                } else {
+                    context.getAudioManager().playSound(LingoAudio.SFX_WRONG_LETTER, false);
+                    letter.triggerWrongFlash();
+
+                    char expected = state.getNextExpectedLetter();
+                    if (expected != '\0') {
+                        showStatus("Wrong letter, find: " + expected);
+                    } else {
+                        showStatus("Wrong letter");
+                    }
+                }
             } else if (owner instanceof FreezePickupEntity pickup) {
                 if (!pickup.isActive()) {
                     return;
@@ -996,7 +1019,6 @@ public class GameScene implements Scene {
 
                 world.removeEntity(pickup);
                 freezePickup = null;
-                context.getAudioManager().playSound(LingoAudio.SFX_POWER_UP, false);
                 activateFreeze();
             } else if (owner instanceof ShockPickupEntity pickup) {
                 if (!pickup.isActive()) {
@@ -1005,7 +1027,6 @@ public class GameScene implements Scene {
 
                 world.removeEntity(pickup);
                 shockPickup = null;
-                context.getAudioManager().playSound(LingoAudio.SFX_POWER_UP, false);
                 activateShock();
             } else if (owner instanceof GhostEntity ghost) {
                 handlePlayerGhostContact(ghost);
