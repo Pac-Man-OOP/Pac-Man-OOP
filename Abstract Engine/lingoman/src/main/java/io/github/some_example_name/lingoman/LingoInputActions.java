@@ -13,6 +13,7 @@ public final class LingoInputActions {
     public static final String MOVE_DOWN = "lingo.move.down";
     public static final String MOVE_LEFT = "lingo.move.left";
     public static final String MOVE_RIGHT = "lingo.move.right";
+    public static final String DASH = "lingo.move.dash";
 
     private LingoInputActions() {
     }

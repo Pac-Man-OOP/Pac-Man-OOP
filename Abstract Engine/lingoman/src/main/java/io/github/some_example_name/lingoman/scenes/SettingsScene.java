@@ -70,17 +70,18 @@ public class SettingsScene implements Scene {
     @Override
     public void render() {
         context.getOutputManager().clearScreen(BACKGROUND.r, BACKGROUND.g, BACKGROUND.b, BACKGROUND.a);
-        context.getOutputManager().drawPanel(76f, 84f, 488f, 304f, PANEL_FILL, PANEL_BORDER);
-        context.getOutputManager().drawTextCenteredWithShadow("SETTINGS", 320f, 358f, TEXT_PRIMARY);
-        context.getOutputManager().drawTextCentered("Adjust master, music, and game sound volumes", 320f, 332f, TEXT_MUTED);
+        context.getOutputManager().drawPanel(68f, 54f, 504f, 336f, PANEL_FILL, PANEL_BORDER);
+        context.getOutputManager().drawTextCenteredWithShadow("SETTINGS", 320f, 364f, TEXT_PRIMARY);
+        context.getOutputManager().drawTextCentered("Adjust master, music, and game sound volumes", 320f, 338f, TEXT_MUTED);
 
         AudioManager audio = context.getAudioManager();
         drawVolumeRow(0, "Master Volume", audio.getMasterVolume(), 278f);
-        drawVolumeRow(1, "Music Volume", audio.getMusicVolume(), 224f);
-        drawVolumeRow(2, "Game Sounds", audio.getSoundMasterVolume(), 170f);
+        drawVolumeRow(1, "Music Volume", audio.getMusicVolume(), 222f);
+        drawVolumeRow(2, "Game Sounds", audio.getSoundMasterVolume(), 166f);
 
-        context.getOutputManager().drawTextCentered("A/D or LEFT/RIGHT: adjust    W/S or UP/DOWN: select", 320f, 116f, TEXT_MUTED);
-        context.getOutputManager().drawTextCentered("ENTER, M or ESC: back", 320f, 94f, TEXT_MUTED);
+        context.getOutputManager().drawTextCenteredScaled("A/D or LEFT/RIGHT: adjust", 320f, 120f, TEXT_MUTED, 0.95f);
+        context.getOutputManager().drawTextCenteredScaled("W/S or UP/DOWN: select", 320f, 98f, TEXT_MUTED, 0.95f);
+        context.getOutputManager().drawTextCenteredScaled("ENTER, M or ESC: back", 320f, 76f, TEXT_MUTED, 0.95f);
     }
 
     @Override
@@ -94,11 +95,11 @@ public class SettingsScene implements Scene {
         Color labelColor = selected ? TEXT_DARK : TEXT_PRIMARY;
         Color valueColor = selected ? TEXT_DARK : TEXT_MUTED;
 
-        context.getOutputManager().drawPanel(108f, y, 424f, 36f, fill, border);
-        context.getOutputManager().drawText(label, 130f, y + 24f, labelColor);
-        context.getOutputManager().drawTextRightAligned(Math.round(volume * 100f) + "%", 506f, y + 24f, valueColor);
-        context.getOutputManager().drawRect(272f, y + 11f, 188f, 8f, BAR_BACKGROUND);
-        context.getOutputManager().drawRect(272f, y + 11f, 188f * MathUtils.clamp(volume, 0f, 1f), 8f, BAR_FILL);
+        context.getOutputManager().drawPanel(100f, y, 440f, 38f, fill, border);
+        context.getOutputManager().drawTextScaled(label, 122f, y + 25f, labelColor, 0.94f);
+        context.getOutputManager().drawTextRightAligned(Math.round(volume * 100f) + "%", 516f, y + 25f, valueColor);
+        context.getOutputManager().drawRect(274f, y + 14f, 184f, 8f, BAR_BACKGROUND);
+        context.getOutputManager().drawRect(274f, y + 14f, 184f * MathUtils.clamp(volume, 0f, 1f), 8f, BAR_FILL);
     }
 
     private void adjustSelectedVolume(float delta) {

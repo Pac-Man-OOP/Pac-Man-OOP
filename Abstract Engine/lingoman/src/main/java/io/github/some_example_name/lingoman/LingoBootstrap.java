@@ -42,6 +42,7 @@ public final class LingoBootstrap implements EngineBootstrap {
         input.bindAction(LingoInputActions.MOVE_DOWN, Input.Keys.DOWN, Input.Keys.S);
         input.bindAction(LingoInputActions.MOVE_LEFT, Input.Keys.LEFT, Input.Keys.A);
         input.bindAction(LingoInputActions.MOVE_RIGHT, Input.Keys.RIGHT, Input.Keys.D);
+        input.bindAction(LingoInputActions.DASH, Input.Keys.SPACE);
     }
 
     private void configureScenes(SceneManager sceneManager) {
@@ -56,11 +57,12 @@ public final class LingoBootstrap implements EngineBootstrap {
 
     private void configureAudio(AudioManager audio) {
         audio.loadSound(LingoAudio.SFX_COLLECT_LETTER, LingoAudio.PATH_SFX_COLLECT_LETTER);
+        audio.loadSound(LingoAudio.SFX_WRONG_LETTER, LingoAudio.PATH_SFX_WRONG_LETTER);
         audio.loadSound(LingoAudio.SFX_MOVE, LingoAudio.PATH_SFX_MOVE);
         audio.loadSound(LingoAudio.SFX_GAME_OVER, LingoAudio.PATH_SFX_GAME_OVER);
         audio.loadSound(LingoAudio.SFX_VICTORY, LingoAudio.PATH_SFX_VICTORY);
         audio.loadSound(LingoAudio.SFX_HURT, LingoAudio.PATH_SFX_HURT);
-
+        audio.loadSound(LingoAudio.SFX_MENU_NAVIGATE, LingoAudio.PATH_SFX_MENU_NAVIGATE);
         audio.loadMusic(LingoAudio.BGM_GAME, LingoAudio.PATH_BGM_GAME);
     }
 
