@@ -71,7 +71,7 @@ public class LetterEntity extends Entity {
             String.valueOf(letter),
             getX() + getWidth() * 0.5f,
             getY() + getHeight() * 0.76f,
-            Color.WHITE,
+            new Color(0.10f, 0.08f, 0.02f,  1f),
             textScale
         );
     }

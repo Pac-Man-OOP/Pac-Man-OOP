@@ -27,6 +27,7 @@ import io.github.some_example_name.lingoman.entity.PlayerEntity;
 import io.github.some_example_name.lingoman.entity.ShockPickupEntity;
 import io.github.some_example_name.lingoman.entity.WallBombEntity;
 import io.github.some_example_name.lingoman.entity.WallEntity;
+import io.github.some_example_name.lingoman.graphics.LingoSprites;
 import io.github.some_example_name.lingoman.level.MazeLayout;
 import io.github.some_example_name.lingoman.model.GameState;
 import io.github.some_example_name.lingoman.model.WordBank;
@@ -173,6 +174,12 @@ public class GameScene implements Scene {
         world.update(deltaTime);
         wrapTunnelTravellers();
         updateMovementAudio();
+        updateGhostShooting(deltaTime); 
+        cleanupInactiveBombs(); 
+        cleanupInactiveFireballs();
+        updateGhostShooting(deltaTime);
+        cleanupInactiveBombs(); 
+        cleanupInactiveFireballs();
 
         GameState state = LingoSession.get().getGameState();
         if (state.hasCollectedAllLetters()) {
@@ -192,32 +199,42 @@ public class GameScene implements Scene {
 
     @Override
     public void render() {
-        context.getOutputManager().clearScreen(BACKGROUND_OUTER.r, BACKGROUND_OUTER.g, BACKGROUND_OUTER.b, BACKGROUND_OUTER.a);
+        context.getOutputManager().clearScreen(
+            BACKGROUND_OUTER.r, BACKGROUND_OUTER.g, BACKGROUND_OUTER.b, BACKGROUND_OUTER.a);
         world.render(context.getOutputManager());
-
+ 
         GameState state = LingoSession.get().getGameState();
-
-        context.getOutputManager().drawTextWithShadow("Progress: " + state.getCollectedLettersDisplay(), 28f, 474f, TEXT_PRIMARY);
+ 
+        final float ICON_SIZE = 40f;
+        final float ICON_X    = 28f;
+        final float ICON_Y    = 432f;   // sits above "Progress" line at y=454
+ 
+        context.getOutputManager().draw(
+            LingoSprites.wordIcon(state.getTargetWord()),
+            ICON_X, ICON_Y, ICON_SIZE, ICON_SIZE
+        );
+ 
+        final float TEXT_X = ICON_X + ICON_SIZE + 8f;  // 76f
+ 
+        context.getOutputManager().drawTextWithShadow(
+            "Progress: " + state.getCollectedLettersDisplay(), TEXT_X, 474f, TEXT_PRIMARY);
+ 
         char nextLetter = state.getNextExpectedLetter();
         String nextHint = nextLetter == '\0' ? "Next: -" : "Next: " + nextLetter;
-        context.getOutputManager().drawTextWithShadow(nextHint, 28f, 454f, TEXT_WARNING);
-
+        context.getOutputManager().drawTextWithShadow(nextHint, TEXT_X, 454f, TEXT_WARNING);
+ 
         context.getOutputManager().drawTextWithShadow("Lives: " + state.getLives(), 432f, 474f,
             state.getLives() <= 1 ? TEXT_WARNING : TEXT_PRIMARY);
-        context.getOutputManager().drawTextWithShadow("Mode: " + state.getDifficulty(), 432f, 454f, TEXT_PRIMARY);
-
+        context.getOutputManager().drawTextWithShadow(
+            "Mode: " + state.getDifficulty(), 432f, 454f, TEXT_PRIMARY);
+ 
         context.getOutputManager().drawTextWithShadow("Move: WASD / Arrows", 28f, 18f, TEXT_PRIMARY);
         context.getOutputManager().drawTextWithShadow("Dash: SPACE", 246f, 18f, TEXT_PRIMARY);
         context.getOutputManager().drawTextRightAlignedWithShadow("Menu: M or ESC", 610f, 18f, TEXT_MUTED);
-
+ 
         if (!statusMessage.isBlank()) {
             context.getOutputManager().drawTextCenteredScaled(
-                statusMessage,
-                320f,
-                474f,
-                TEXT_WARNING,
-                0.8f
-            );
+                statusMessage, 320f, 474f, TEXT_WARNING, 0.8f);
         }
     }
 
