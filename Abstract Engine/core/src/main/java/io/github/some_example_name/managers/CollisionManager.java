@@ -89,30 +89,33 @@ public class CollisionManager {
 
     /**
      * Called when two colliders are detected to be overlapping.
-     *
-     * <p>Default behaviour: delegate positional separation to resolver, then
-     * dispatch a Stay callback.
+     * Delegates to the resolver strategy if set, then fires collision events.
      */
     public void resolveCollision(Collider c1, Collider c2) {
+        if (c1 == null || c2 == null) return;
+
         if (resolver != null) {
             resolver.resolve(c1, c2);
         }
+    }
 
-        ICollisionListener l = c1.getListener();
+    private void fireStay(Collider self, Collider other) {
+        ICollisionListener l = self.getListener();
         if (l != null) {
-            l.onCollisionStay(c2);
+            l.onCollisionStay(other);
         }
     }
 
     public void checkCollisions() {
         Set<CollisionPair> current = new HashSet<>();
+        List<Collider> snapshot = new ArrayList<>(colliders);
 
-        for (int i = 0; i < colliders.size(); i++) {
-            Collider c1 = colliders.get(i);
+        for (int i = 0; i < snapshot.size(); i++) {
+            Collider c1 = snapshot.get(i);
             if (!isUsable(c1)) continue;
 
-            for (int j = i + 1; j < colliders.size(); j++) {
-                Collider c2 = colliders.get(j);
+            for (int j = i + 1; j < snapshot.size(); j++) {
+                Collider c2 = snapshot.get(j);
                 if (!isUsable(c2)) continue;
 
                 if (!filter.canCollide(c1, c2)) continue;
@@ -122,19 +125,17 @@ public class CollisionManager {
                 current.add(pair);
 
                 if (!activeCollisions.contains(pair)) {
-                    // ENTER
-                    if (resolver != null) resolver.resolve(c1, c2);
+                    resolveCollision(c1, c2);
                     fireEnter(c1, c2);
                     fireEnter(c2, c1);
                 } else {
-                    // STAY
                     resolveCollision(c1, c2);
-                    resolveCollision(c2, c1);
+                    fireStay(c1, c2);
+                    fireStay(c2, c1);
                 }
             }
         }
 
-        // EXIT
         for (CollisionPair old : activeCollisions) {
             if (!current.contains(old)) {
                 fireExit(old.a, old.b);
