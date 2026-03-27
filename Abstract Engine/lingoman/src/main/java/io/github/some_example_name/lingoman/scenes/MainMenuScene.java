@@ -1,9 +1,9 @@
 package io.github.some_example_name.lingoman.scenes;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 
 import io.github.some_example_name.EngineContext;
 import io.github.some_example_name.lingoman.LingoAudio;
@@ -123,12 +123,13 @@ public class MainMenuScene implements Scene {
     }
 
     private boolean isStartClicked() {
-        if (!Gdx.input.justTouched()) {
+        if (!context.getInputManager().isMouseClicked()) {
             return false;
         }
 
-        float worldX = Gdx.input.getX();
-        float worldY = SCREEN_HEIGHT - Gdx.input.getY();
+        Vector2 mouse = context.getInputManager().getMousePosition();
+        float worldX = mouse.x;
+        float worldY = SCREEN_HEIGHT - mouse.y;
         return worldX >= START_BUTTON_X
             && worldX <= START_BUTTON_X + START_BUTTON_WIDTH
             && worldY >= START_BUTTON_Y
